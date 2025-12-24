@@ -42,7 +42,7 @@ preprocessor = ColumnTransformer(
 # Model Pipeline
 pipeline = Pipeline(steps=[
     ("preprocessor", preprocessor),
-    ("model", RandomForestRegressor(n_estimators=100, random_state=42))
+    ("model", RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1))  # Use all CPU cores
 ])
 
 # Train-Test Split

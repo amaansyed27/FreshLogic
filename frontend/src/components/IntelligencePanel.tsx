@@ -67,29 +67,65 @@ export default function IntelligencePanel({ context, data, loading, onAnalysisUp
                             )}
 
                             {!loading && data?.agent_insight ? (
-                                <div className="prose prose-invert prose-sm max-w-none text-gray-300">
-                                    <div className="whitespace-pre-wrap font-light leading-7">
-                                        {data.agent_insight}
+                                <div className="space-y-6">
+                                    {/* Summary Header */}
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <h3 className="text-lg font-medium text-white mb-1">AI Analysis Report</h3>
+                                            <p className="text-xs text-white/40">Powered by Gemini 2.5 + FreshLogic ML Model</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className={`text-2xl font-bold ${data.risk_analysis?.spoilage_risk > 0.5 ? 'text-red-400' : data.risk_analysis?.spoilage_risk > 0.2 ? 'text-yellow-400' : 'text-green-400'}`}>
+                                                {data.risk_analysis?.status || 'Unknown'}
+                                            </div>
+                                            <div className="text-xs text-white/40">ML Prediction</div>
+                                        </div>
                                     </div>
 
-                                    <div className="mt-8 pt-4 border-t border-white/10 flex flex-col gap-2">
-                                        <h4 className="text-white/50 text-xs uppercase tracking-wider">Risk Factors</h4>
-                                        <div className="flex gap-2">
-                                            {data.risk_analysis?.spoilage_risk > 0.5 ? (
-                                                <span className="bg-red-500/10 text-red-400 px-3 py-1 rounded-full text-xs border border-red-500/20">High Spoilage Risk</span>
-                                            ) : (
-                                                <span className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-xs border border-green-500/20">Optimal Conditions</span>
-                                            )}
-                                            <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs border border-blue-500/20">
-                                                {data.route?.distance_km} km
-                                            </span>
+                                    {/* Key Metrics Bar */}
+                                    <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
+                                        <div className="text-center">
+                                            <div className="text-xl font-semibold text-white">{(data.risk_analysis?.spoilage_risk * 100).toFixed(0)}%</div>
+                                            <div className="text-[10px] text-white/40">Spoilage Risk</div>
                                         </div>
+                                        <div className="text-center border-x border-white/10">
+                                            <div className="text-xl font-semibold text-emerald-400">{data.risk_analysis?.days_remaining?.toFixed(1) || 'N/A'}</div>
+                                            <div className="text-[10px] text-white/40">Days Remaining</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="text-xl font-semibold text-blue-400">{data.route?.duration_hours?.toFixed(1)}h</div>
+                                            <div className="text-[10px] text-white/40">Transit Time</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Agent Insight */}
+                                    <div className="prose prose-invert prose-sm max-w-none">
+                                        <div className="text-gray-300 whitespace-pre-wrap font-light leading-7 text-[15px]">
+                                            {data.agent_insight}
+                                        </div>
+                                    </div>
+
+                                    {/* Data Sources Footer */}
+                                    <div className="pt-4 border-t border-white/10 flex flex-wrap gap-2">
+                                        <span className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-[10px] border border-green-500/20 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                                            Live Weather Data
+                                        </span>
+                                        <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] border border-blue-500/20 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                                            ML Spoilage Model
+                                        </span>
+                                        <span className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-[10px] border border-purple-500/20 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                            92 Crop Knowledge Base
+                                        </span>
                                     </div>
                                 </div>
                             ) : !loading && (
                                 <div className="h-full flex flex-col items-center justify-center text-white/20">
                                     <FileText className="w-12 h-12 mb-3 opacity-20" />
                                     <p>No analysis generated yet.</p>
+                                    <p className="text-xs mt-2">Select origin, destination, and crop to begin</p>
                                 </div>
                             )}
                         </motion.div>

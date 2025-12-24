@@ -32,17 +32,18 @@ class FreshLogicAgent:
         """
         
         # 1. Identify Context for RAG
-        # Try to find the crop name to query the Knowledge Base
+        # Get crop name from context_data (passed from main.py)
         crop_name = "General Perishables"
+        
+        # Primary: Check metadata.crop (set by main.py)
         if "metadata" in telemetry_data and "crop" in telemetry_data["metadata"]:
             crop_name = telemetry_data["metadata"]["crop"]
-        elif "cargo" in str(telemetry_data).lower(): # Fallback heuristic
-             # In a real app, we'd extract this more robustly
-             pass
+        # Fallback: Check top-level crop_type
+        elif "crop_type" in telemetry_data:
+            crop_name = telemetry_data["crop_type"]
         
-        # If the user query mentions a specific crop, use that for RAG lookup
-        if user_query and "strawberry" in user_query.lower(): crop_name = "Strawberry"
-        if user_query and "mango" in user_query.lower(): crop_name = "Mango"
+        # Log for debugging
+        print(f"🌾 Agent: Processing crop = '{crop_name}'")
 
         # 2. Retrieve Knowledge (RAG)
         # Search Knowledge Base for "Optimal storage for [Crop]"
@@ -62,6 +63,7 @@ class FreshLogicAgent:
             summary_text = telemetry_data["route_summary"]
             avg_temp = telemetry_data.get("avg_temp", "N/A")
             telemetry_text = f"""
+            - CROP BEING TRANSPORTED: {crop_name}
             - Route: {summary_text}
             - Avg Temperature: {avg_temp}°C
             - Avg Humidity: {telemetry_data.get('avg_humidity')}%
@@ -69,27 +71,31 @@ class FreshLogicAgent:
             """
         else:
             telemetry_text = f"""
+            - CROP BEING TRANSPORTED: {crop_name}
             - Truck ID: {telemetry_data.get('truck_id', 'Unknown')}
             - Current Temp: {telemetry_data.get('sensor_data', {}).get('temperature')}°C
             """
 
         context = f"""
-        You are 'FreshLogic', an AI Chief Agronomist.
+        You are 'FreshLogic', an AI Chief Agronomist specializing in {crop_name} transport.
         
-        SOURCE OF TRUTH (Internal Knowledge Base):
+        SOURCE OF TRUTH (Internal Knowledge Base for {crop_name}):
         {rag_text}
         
         CURRENT TRIP REPORT:
         {telemetry_text}
-        - ML Predicted Risk: {spoilage_risk.get('spoilage_risk', 0) * 100}% ({spoilage_risk.get('status')})
+        - ML Predicted Spoilage Risk: {spoilage_risk.get('spoilage_risk', 0) * 100:.1f}% ({spoilage_risk.get('status')})
+        - Estimated Shelf Life Remaining: {spoilage_risk.get('days_remaining', 'N/A')} days
         
-        USER QUERY: {user_query or "Validate this trip."}
+        USER QUERY: {user_query or "Provide a comprehensive analysis of this trip."}
         
         INSTRUCTIONS:
-        1. CHECK the Internal Knowledge Base first. Does the Current Temp violate the "Optimal Temperature" rules retrieved?
-        2. IF yes, flag it immediately (cite the internal rule).
-        3. IF the Internal Knowledge is missing specific details, search Google.
-        4. Explain *why* the ML predicted {spoilage_risk.get('status')} based on the physics/rules.
+        1. You ARE analyzing {crop_name}. Do NOT ask "what crop" - you already know it's {crop_name}.
+        2. CHECK the Internal Knowledge Base. Does the Avg Temp ({telemetry_data.get('avg_temp', 'N/A')}°C) violate the optimal temp rules for {crop_name}?
+        3. IF yes, flag it immediately and cite the internal rule.
+        4. Explain WHY the ML predicted {spoilage_risk.get('status')} based on the conditions.
+        5. Provide 2-3 actionable recommendations specific to {crop_name}.
+        6. Keep your response concise but informative (200-300 words max).
         """
 
         # 4. Call Gemini

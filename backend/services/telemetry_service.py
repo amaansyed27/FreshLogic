@@ -88,13 +88,16 @@ class TelemetryService:
     def generate_trip_telemetry(self, route_data):
         """Generate telemetry for each waypoint."""
         telemetry_points = []
+        real_weather_count = 0
         
         for point in route_data["waypoints"]:
             weather = self._get_live_weather(point["lat"], point["lng"])
             
             # Fallback if weather API fails (graceful degradation)
             if not weather:
-                weather = {"temperature": 25, "humidity": 60, "condition": "Unavailable"}
+                weather = {"temperature": 25, "humidity": 60, "condition": "Simulated (No API Key)"}
+            else:
+                real_weather_count += 1
                 
             # No simulated "Internal Temp" offset anymore. 
             # We assume ambient temp = payload temp (non-reefer truck) or let the Agent handle reefer logic.
@@ -108,6 +111,15 @@ class TelemetryService:
                 "humidity": weather["humidity"],
                 "condition": weather["condition"]
             })
+        
+        # Log weather source for transparency
+        total = len(route_data["waypoints"])
+        if real_weather_count == total:
+            print(f"🌤️ Weather: {real_weather_count}/{total} points from OpenWeatherMap (REAL)")
+        elif real_weather_count > 0:
+            print(f"⚠️ Weather: {real_weather_count}/{total} real, {total-real_weather_count} simulated")
+        else:
+            print(f"❌ Weather: All {total} points SIMULATED (set OPENWEATHER_API_KEY for real data)")
         
         return telemetry_points
 

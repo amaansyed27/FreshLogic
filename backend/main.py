@@ -60,16 +60,20 @@ def analyze_telemetry(request: AnalysisRequest):
         )
 
         # 4. Agent Reasoning
-        # We pass the full context including the route summary
+        # We pass the full context including the route summary AND CROP TYPE
         context_data = {
+            "metadata": {
+                "crop": request.crop_type  # CRITICAL: Agent needs this!
+            },
             "origin": request.origin,
             "destination": request.destination,
+            "crop_type": request.crop_type,  # Also at top level for clarity
             "distance_km": route_data["distance_km"],
             "duration_hours": duration_hours,
             "avg_temp": round(avg_temp, 2),
             "avg_humidity": round(avg_humidity, 2),
             "waypoints_sampled": len(trip_telemetry),
-            "route_summary": f"Route from {request.origin} to {request.destination} ({route_data['distance_km']} km)"
+            "route_summary": f"Transporting {request.crop_type} from {request.origin} to {request.destination} ({route_data['distance_km']} km)"
         }
         
         agent_response = agent_service.analyze_situation(

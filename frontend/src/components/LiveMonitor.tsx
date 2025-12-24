@@ -1,11 +1,26 @@
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart } from 'recharts';
 import { motion } from 'framer-motion';
-import { Thermometer, Clock, AlertTriangle, TrendingUp, Navigation } from 'lucide-react';
+import { Thermometer, Clock, Navigation, Droplets, Calendar, Leaf, MapPin } from 'lucide-react';
 
 interface LiveMonitorProps {
     data: any;
     loading: boolean;
+}
+
+// Status badge component
+function StatusBadge({ status }: { status: string }) {
+    const colors: Record<string, string> = {
+        'Safe': 'bg-green-500/20 text-green-400 border-green-500/30',
+        'Optimal': 'bg-green-500/20 text-green-400 border-green-500/30',
+        'Warning': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+        'Critical': 'bg-red-500/20 text-red-400 border-red-500/30',
+    };
+    return (
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${colors[status] || colors['Warning']}`}>
+            {status}
+        </span>
+    );
 }
 
 export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
@@ -13,7 +28,7 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-white/30 space-y-4">
                 <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
-                <p>Acquiring Telemetry...</p>
+                <p>Analyzing route conditions...</p>
             </div>
         );
     }
@@ -22,26 +37,77 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-white/30">
                 <Navigation className="w-16 h-16 mb-4 opacity-20" />
-                <p>Waiting for route analysis...</p>
+                <p>Enter route details to begin analysis</p>
             </div>
         );
     }
 
-    return (
-        <div className="h-full flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+    // Calculate temperature stats
+    const temps = data?.telemetry_points?.map((p: any) => p.internal_temp) || [];
+    const minTemp = temps.length > 0 ? Math.min(...temps).toFixed(1) : 'N/A';
+    const maxTemp = temps.length > 0 ? Math.max(...temps).toFixed(1) : 'N/A';
+    const avgHumidity = data?.telemetry_points?.reduce((a: number, p: any) => a + p.humidity, 0) / (data?.telemetry_points?.length || 1);
 
-            {/* KPI Grid */}
-            <div className="grid grid-cols-2 gap-4">
+    // Prepare chart data with waypoint numbers
+    const chartData = data?.telemetry_points?.map((p: any, i: number) => ({
+        ...p,
+        waypoint: `${i + 1}`,
+        location: p.condition || 'En Route'
+    })) || [];
+
+    return (
+        <div className="h-full flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+
+            {/* Main Status Card */}
+            <motion.div
+                initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                className="glass p-5 rounded-2xl border border-white/5"
+            >
+                <div className="flex justify-between items-start mb-4">
+                    <div>
+                        <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
+                            <Leaf className="w-3 h-3" /> SHIPMENT STATUS
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <StatusBadge status={data?.risk_analysis?.status || 'Unknown'} />
+                            <span className="text-white/60 text-sm">
+                                {data?.risk_analysis?.days_remaining?.toFixed(1) || 'N/A'} days shelf life remaining
+                            </span>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-3xl font-bold text-white">
+                            {(data?.risk_analysis?.spoilage_risk * 100).toFixed(0)}%
+                        </div>
+                        <div className="text-xs text-white/40">Spoilage Risk</div>
+                    </div>
+                </div>
+
+                {/* Route Info Bar */}
+                <div className="flex items-center gap-2 text-sm text-white/70 bg-white/5 rounded-xl p-3">
+                    <MapPin className="w-4 h-4 text-green-400" />
+                    <span className="font-medium">{data?.route?.distance_km} km</span>
+                    <span className="text-white/30">•</span>
+                    <Clock className="w-4 h-4 text-blue-400" />
+                    <span>{data?.route?.duration_hours?.toFixed(1)} hrs transit</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white/40">{data?.telemetry_points?.length || 0} checkpoints</span>
+                </div>
+            </motion.div>
+
+            {/* KPI Grid - More Farmer Focused */}
+            <div className="grid grid-cols-3 gap-3">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                     className="glass p-4 rounded-2xl flex flex-col text-white"
                 >
                     <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-                        <Navigation className="w-3 h-3" /> DISTANCE
+                        <Thermometer className="w-3 h-3 text-orange-400" /> TEMP RANGE
                     </div>
-                    <div className="text-2xl font-bold tracking-tight">
-                        {data?.route?.distance_km || 0} <span className="text-sm font-normal text-white/40">km</span>
+                    <div className="text-xl font-bold tracking-tight">
+                        {minTemp}° - {maxTemp}°
                     </div>
+                    <div className="text-[10px] text-white/40 mt-1">Along route</div>
                 </motion.div>
 
                 <motion.div
@@ -49,11 +115,12 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                     className="glass p-4 rounded-2xl flex flex-col text-white"
                 >
                     <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-                        <Clock className="w-3 h-3" /> TRANSIT
+                        <Droplets className="w-3 h-3 text-blue-400" /> AVG HUMIDITY
                     </div>
-                    <div className="text-2xl font-bold tracking-tight">
-                        {data?.route?.duration_hours || 0} <span className="text-sm font-normal text-white/40">hrs</span>
+                    <div className="text-xl font-bold tracking-tight">
+                        {avgHumidity.toFixed(0)}%
                     </div>
+                    <div className="text-[10px] text-white/40 mt-1">Route average</div>
                 </motion.div>
 
                 <motion.div
@@ -61,70 +128,89 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                     className="glass p-4 rounded-2xl flex flex-col text-white"
                 >
                     <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-                        <AlertTriangle className="w-3 h-3" /> RISK
+                        <Calendar className="w-3 h-3 text-emerald-400" /> SHELF LIFE
                     </div>
-                    <div className={`text-2xl font-bold tracking-tight ${data?.risk_analysis?.spoilage_risk > 0.5 ? 'text-red-400' : 'text-green-400'}`}>
-                        {(data?.risk_analysis?.spoilage_risk * 100).toFixed(0)}%
+                    <div className="text-xl font-bold tracking-tight text-emerald-400">
+                        {data?.risk_analysis?.days_remaining?.toFixed(1) || 'N/A'}
                     </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                    className="glass p-4 rounded-2xl flex flex-col text-white"
-                >
-                    <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-                        <TrendingUp className="w-3 h-3" /> YIELD
-                    </div>
-                    <div className="text-2xl font-bold tracking-tight text-emerald-400">
-                        {(100 - (data?.risk_analysis?.spoilage_risk || 0) * 100).toFixed(0)}%
-                    </div>
+                    <div className="text-[10px] text-white/40 mt-1">Days remaining</div>
                 </motion.div>
             </div>
 
-            {/* Live Chart */}
+            {/* Live Chart - Improved */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}
-                className="glass p-6 rounded-3xl flex-1 min-h-[300px] flex flex-col"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
+                className="glass p-5 rounded-2xl flex-1 min-h-[280px] flex flex-col"
             >
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-white/80 font-medium flex items-center gap-2">
-                        <Thermometer className="w-4 h-4 text-orange-400" />
-                        Live Telemetry
-                    </h3>
-                    <span className="text-xs px-2 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                        Live Feed
-                    </span>
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 className="text-white/90 font-medium flex items-center gap-2">
+                            <Thermometer className="w-4 h-4 text-orange-400" />
+                            Route Weather Conditions
+                        </h3>
+                        <p className="text-xs text-white/40 mt-1">Real-time data from OpenWeatherMap at each checkpoint</p>
+                    </div>
+                    <div className="flex gap-4 text-xs">
+                        <div className="flex items-center gap-1">
+                            <div className="w-3 h-0.5 bg-orange-400 rounded"></div>
+                            <span className="text-white/50">Temperature</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <div className="w-3 h-0.5 bg-blue-400 rounded"></div>
+                            <span className="text-white/50">Humidity</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data?.telemetry_points || []}>
+                        <ComposedChart data={chartData}>
+                            <defs>
+                                <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis
-                                dataKey="condition"
-                                tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                                dataKey="waypoint"
+                                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
-                                interval={1}
+                                label={{ value: 'Checkpoint', position: 'insideBottom', offset: -5, fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
                             />
                             <YAxis
                                 yAxisId="left"
-                                stroke="#f97316"
-                                tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                                domain={['dataMin - 5', 'dataMax + 5']}
+                                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
+                                label={{ value: '°C', angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
                             />
                             <YAxis
                                 yAxisId="right"
                                 orientation="right"
-                                stroke="#3b82f6"
-                                tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                                domain={[0, 100]}
+                                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
+                                label={{ value: '%', angle: 90, position: 'insideRight', fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#1a1a2e', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
-                                itemStyle={{ fontSize: '12px' }}
+                                contentStyle={{ 
+                                    backgroundColor: 'rgba(15, 15, 18, 0.95)', 
+                                    borderColor: 'rgba(255,255,255,0.1)', 
+                                    borderRadius: '12px',
+                                    color: '#fff' 
+                                }}
+                                labelFormatter={(label) => `Checkpoint ${label}`}
+                            />
+                            <Area
+                                yAxisId="left"
+                                type="monotone"
+                                dataKey="internal_temp"
+                                fill="url(#tempGradient)"
+                                stroke="transparent"
                             />
                             <Line
                                 yAxisId="left"
@@ -132,8 +218,8 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                                 dataKey="internal_temp"
                                 stroke="#f97316"
                                 strokeWidth={3}
-                                dot={{ fill: '#f97316', r: 4, strokeWidth: 0 }}
-                                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+                                dot={{ fill: '#f97316', r: 5, strokeWidth: 2, stroke: '#1a1a2e' }}
+                                activeDot={{ r: 7, stroke: '#fff', strokeWidth: 2 }}
                             />
                             <Line
                                 yAxisId="right"
@@ -141,10 +227,10 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                                 dataKey="humidity"
                                 stroke="#3b82f6"
                                 strokeWidth={2}
-                                strokeDasharray="4 4"
-                                dot={false}
+                                strokeDasharray="5 5"
+                                dot={{ fill: '#3b82f6', r: 3 }}
                             />
-                        </LineChart>
+                        </ComposedChart>
                     </ResponsiveContainer>
                 </div>
             </motion.div>
