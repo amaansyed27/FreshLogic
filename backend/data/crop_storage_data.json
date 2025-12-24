@@ -1,0 +1,830 @@
+[
+    {
+        "category": "Fruit",
+        "name": "Mango (Alphonso)",
+        "temp_min": 13,
+        "temp_max": 15,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Premium variety. Highly sensitive to chilling (black spots below 13C)."
+    },
+    {
+        "category": "Fruit",
+        "name": "Mango (Kesar)",
+        "temp_min": 12,
+        "temp_max": 14,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Gujarat/Maharashtra variety. Good shelf life."
+    },
+    {
+        "category": "Fruit",
+        "name": "Mango (Totapuri)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Processing variety. More hardy."
+    },
+    {
+        "category": "Fruit",
+        "name": "Mango (Langra)",
+        "temp_min": 13,
+        "temp_max": 15,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "North Indian variety. Turns yellow rapidly."
+    },
+    {
+        "category": "Fruit",
+        "name": "Banana (Robusta/Cavendish)",
+        "temp_min": 13,
+        "temp_max": 14,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Chilling injury below 13C (Grey skin)."
+    },
+    {
+        "category": "Fruit",
+        "name": "Banana (Yelakki/Elaichi)",
+        "temp_min": 13,
+        "temp_max": 15,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Small variety. High respiration."
+    },
+    {
+        "category": "Fruit",
+        "name": "Guava (Allahabad Safeda)",
+        "temp_min": 5,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Ripens very fast at room temp."
+    },
+    {
+        "category": "Fruit",
+        "name": "Papaya (Taiwan Red)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Chilling sensitive."
+    },
+    {
+        "category": "Fruit",
+        "name": "Pomegranate (Bhagwa)",
+        "temp_min": 5,
+        "temp_max": 8,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Maharashtra export crop. Long storage potential."
+    },
+    {
+        "category": "Fruit",
+        "name": "Grapes (Thompson Seedless)",
+        "temp_min": -0.5,
+        "temp_max": 0,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Nashik variety. Requires SO2 sheets for export."
+    },
+    {
+        "category": "Fruit",
+        "name": "Grapes (Bangalore Blue)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Softer skin than Thompson."
+    },
+    {
+        "category": "Fruit",
+        "name": "Sapota (Chiku)",
+        "temp_min": 14,
+        "temp_max": 16,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Highly perishable. Mushy below 10C."
+    },
+    {
+        "category": "Fruit",
+        "name": "Custard Apple (Sitaphal)",
+        "temp_min": 15,
+        "temp_max": 20,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Splits open if ripe. Chill sensitive."
+    },
+    {
+        "category": "Fruit",
+        "name": "Jackfruit (Raw/Kathal)",
+        "temp_min": 11,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Chilling sensitive."
+    },
+    {
+        "category": "Fruit",
+        "name": "Litchi (Shahi)",
+        "temp_min": 1,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Bihar variety. Skin browns (pericarp) in hours if dry."
+    },
+    {
+        "category": "Fruit",
+        "name": "Sweet Lime (Mosambi)",
+        "temp_min": 9,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Pitting if stored too cold."
+    },
+    {
+        "category": "Fruit",
+        "name": "Orange (Nagpur Mandarin)",
+        "temp_min": 3,
+        "temp_max": 7,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Loose skin (jacket). Puffs up if dry."
+    },
+    {
+        "category": "Fruit",
+        "name": "Indian Plum (Ber)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Hardy but loses crispness."
+    },
+    {
+        "category": "Fruit",
+        "name": "Jamun",
+        "temp_min": 8,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Extremely perishable. 2-3 days life."
+    },
+    {
+        "category": "Fruit",
+        "name": "Amla (Indian Gooseberry)",
+        "temp_min": 5,
+        "temp_max": 7,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Browns if too cold."
+    },
+    {
+        "category": "Fruit",
+        "name": "Fig (Pune Anjeer)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Very delicate skin."
+    },
+    {
+        "category": "Fruit",
+        "name": "Watermelon (Kiran)",
+        "temp_min": 10,
+        "temp_max": 15,
+        "humidity_min": 80,
+        "humidity_max": 85,
+        "notes": "Chilling injury below 10C."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Onion (Nashik Red)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 65,
+        "humidity_max": 70,
+        "notes": "Requires curing. Rot in high humidity."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Potato (Indore/Jyoti)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Sweetens (starch->sugar) below 7C."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Tomato (Desi)",
+        "temp_min": 12,
+        "temp_max": 15,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Thinner skin than hybrids."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Tomato (Hybrid)",
+        "temp_min": 12,
+        "temp_max": 15,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Long transportation variety."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Brinjal (Eggplant/Baingan)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Decay below 10C."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Lady Finger (Okra/Bhindi)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Discoloration below 7C. Toughens if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Cauliflower (Gobi)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 98,
+        "notes": "Black spots if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Cabbage (Patta Gobi)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Robust."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Spinach (Palak)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Requires icing. Wilts rapidly."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Fenugreek Leaves (Methi)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Very high respiration. Heats up in pile."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Coriander Leaves (Dhania)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Yellows/rots rapidly."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Curry Leaves (Kadi Patta)",
+        "temp_min": 8,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Turn black if frozen."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Mint (Pudina)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Loses aroma if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Drumstick (Moringa)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Shrivels fast."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Bottle Gourd (Lauki)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Chilling sensitive."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Bitter Gourd (Karela)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Ripens (turns orange) if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Ridge Gourd (Turai)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Delicate skin."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Green Chili (Hari Mirch)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Shrivels."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Ginger (Adrak)",
+        "temp_min": 12,
+        "temp_max": 14,
+        "humidity_min": 70,
+        "humidity_max": 75,
+        "notes": "Mold in high humidity. Shrivel in low."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Garlic (Lahsun)",
+        "temp_min": -1,
+        "temp_max": 0,
+        "humidity_min": 60,
+        "humidity_max": 70,
+        "notes": "Sprouts if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Green Peas (Matar)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 98,
+        "notes": "Sugar loss rapid."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Cluster Beans (Gavar)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Russeting."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Capsicum (Simla Mirch)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Chill sensitive."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Carrot (Gajar - Red)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 98,
+        "notes": "Indian red variety. Wilts easily."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Radish (Mooli)",
+        "temp_min": 0,
+        "temp_max": 1,
+        "humidity_min": 95,
+        "humidity_max": 98,
+        "notes": "Leaves rot first."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Cucumber (Kheera)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 95,
+        "humidity_max": 95,
+        "notes": "Pitting below 10C."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Wheat (Sharbati)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 13,
+        "notes": "Keep moisture <13%."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Rice (Basmati)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 14,
+        "notes": "Aromatic. Protect from odors."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Rice (Sona Masoori)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 14,
+        "notes": "Standard storage."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Toor Dal (Pigeon Pea)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 12,
+        "notes": "Insect infestation risk."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Moong Dal (Green Gram)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 12,
+        "notes": "Insect risk."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Chana Dal (Bengal Gram)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 12,
+        "notes": "Dry storage."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Urad Dal (Black Gram)",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 0,
+        "humidity_max": 12,
+        "notes": "Dry storage."
+    },
+    {
+        "category": "Grain/Legume",
+        "name": "Groundnut (Peanut)",
+        "temp_min": 10,
+        "temp_max": 20,
+        "humidity_min": 0,
+        "humidity_max": 8,
+        "notes": "Aflatoxin risk if wet."
+    },
+    {
+        "category": "Flower",
+        "name": "Marigold (Genda)",
+        "temp_min": 4,
+        "temp_max": 6,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "High respiration. Used in garlands."
+    },
+    {
+        "category": "Flower",
+        "name": "Jasmine (Mogra)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Browns rapidly."
+    },
+    {
+        "category": "Flower",
+        "name": "Rose (Desi)",
+        "temp_min": 1,
+        "temp_max": 3,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Loose petals."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Taro (Arbi)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Rot if cold."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Elephant Foot Yam (Suran)",
+        "temp_min": 12,
+        "temp_max": 16,
+        "humidity_min": 70,
+        "humidity_max": 80,
+        "notes": "Tropical tuber. Chill sensitive."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Pumpkin (Kaddu)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 50,
+        "humidity_max": 70,
+        "notes": "Cure at 27-29C first. Chill sensitive <10C."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Ash Gourd (Petha)",
+        "temp_min": 13,
+        "temp_max": 15,
+        "humidity_min": 70,
+        "humidity_max": 75,
+        "notes": "Long shelf life if whole. Cut pieces need refrigeration."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Pointed Gourd (Parwal)",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "High moisture loss. Turns yellow if warm."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Snake Gourd (Chichinda)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Softens rapidly."
+    },
+    {
+        "category": "Vegetable",
+        "name": "Ivy Gourd (Tindora)",
+        "temp_min": 10,
+        "temp_max": 12,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Color change to red if warm."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Beetroot (Chukandar)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 95,
+        "humidity_max": 98,
+        "notes": "Remove tops to extend life."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Turnip (Shalgam)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Pithy if warm or dry."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Sweet Potato (Shakarkandi)",
+        "temp_min": 13,
+        "temp_max": 15,
+        "humidity_min": 80,
+        "humidity_max": 90,
+        "notes": "Chill injury <12C (Hard core)."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Tapioca (Cassava)",
+        "temp_min": 0,
+        "temp_max": 5,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Vascular streaking within 2-3 days if untreated."
+    },
+    {
+        "category": "Tuber/Root",
+        "name": "Turmeric (Raw)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 70,
+        "humidity_max": 75,
+        "notes": "Shriveling risk."
+    },
+    {
+        "category": "Leaf/Herb",
+        "name": "Betel Leaf (Paan)",
+        "temp_min": 2,
+        "temp_max": 8,
+        "humidity_min": 85,
+        "humidity_max": 95,
+        "notes": "Highly perishable. Cold injury <0C."
+    },
+    {
+        "category": "Fruit",
+        "name": "Coconut (Mature)",
+        "temp_min": 0,
+        "temp_max": 4,
+        "humidity_min": 80,
+        "humidity_max": 85,
+        "notes": "Long storage. Cracking if frozen."
+    },
+    {
+        "category": "Fruit",
+        "name": "Coconut (Tender)",
+        "temp_min": 5,
+        "temp_max": 8,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Water ferments if warm."
+    },
+    {
+        "category": "Stalk",
+        "name": "Sugarcane",
+        "temp_min": 6,
+        "temp_max": 10,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Inversion of sucrose if warm."
+    },
+    {
+        "category": "Fungi",
+        "name": "Mushroom (Button)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Browning and cap opening if warm."
+    },
+    {
+        "category": "Fruit",
+        "name": "Strawberry",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Fungal decay rapid. Do not wet."
+    },
+    {
+        "category": "Fruit",
+        "name": "Pineapple",
+        "temp_min": 7,
+        "temp_max": 10,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Chill injury <7C (Black heart)."
+    },
+    {
+        "category": "Fruit",
+        "name": "Avocado",
+        "temp_min": 5,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Ripens off tree. Chill sensitive."
+    },
+    {
+        "category": "Fruit",
+        "name": "Dragon Fruit",
+        "temp_min": 6,
+        "temp_max": 10,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Scales turn yellow/brown."
+    },
+    {
+        "category": "Fruit",
+        "name": "Kiwi",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Very long storage if ethylene free."
+    },
+    {
+        "category": "Fruit",
+        "name": "Musk Melon (Kharbuja)",
+        "temp_min": 2,
+        "temp_max": 5,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Chill injury <2C (pitting)."
+    },
+    {
+        "category": "Leaf/Herb",
+        "name": "Amaranthus (Chaulai)",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 95,
+        "humidity_max": 100,
+        "notes": "Wilts rapidly."
+    },
+    {
+        "category": "Leaf/Herb",
+        "name": "Basil (Tulsi)",
+        "temp_min": 10,
+        "temp_max": 13,
+        "humidity_min": 85,
+        "humidity_max": 90,
+        "notes": "Blackens <10C."
+    },
+    {
+        "category": "Flower",
+        "name": "Tuberose (Rajnigandha)",
+        "temp_min": 2,
+        "temp_max": 4,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Store strictly upright to prevent bending."
+    },
+    {
+        "category": "Flower",
+        "name": "Gladiolus",
+        "temp_min": 2,
+        "temp_max": 4,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Vertical storage prevents geotropism."
+    },
+    {
+        "category": "Flower",
+        "name": "Chrysanthemum",
+        "temp_min": 0,
+        "temp_max": 2,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Very susceptible to Botrytis."
+    },
+    {
+        "category": "Flower",
+        "name": "Gerbera",
+        "temp_min": 2,
+        "temp_max": 4,
+        "humidity_min": 90,
+        "humidity_max": 95,
+        "notes": "Provide water stem support."
+    },
+    {
+        "category": "Spice",
+        "name": "Cardamom (Green)",
+        "temp_min": 10,
+        "temp_max": 15,
+        "humidity_min": 45,
+        "humidity_max": 55,
+        "notes": "Keep dry to retain volatile oils."
+    },
+    {
+        "category": "Spice",
+        "name": "Black Pepper",
+        "temp_min": 10,
+        "temp_max": 25,
+        "humidity_min": 45,
+        "humidity_max": 55,
+        "notes": "Mold risk above 12% moisture."
+    },
+    {
+        "category": "Spice",
+        "name": "Clove",
+        "temp_min": 10,
+        "temp_max": 20,
+        "humidity_min": 50,
+        "humidity_max": 60,
+        "notes": "Loss of oil if hot."
+    },
+    {
+        "category": "Spice",
+        "name": "Cumin Seeds",
+        "temp_min": 10,
+        "temp_max": 20,
+        "humidity_min": 45,
+        "humidity_max": 55,
+        "notes": "Hygroscopic."
+    }
+]

@@ -1,0 +1,24 @@
+# FreshLogic Task List
+
+- [/] Project Initialization <!-- id: 0 -->
+    - [x] Create directory structure (frontend, backend) <!-- id: 1 -->
+    - [ ] Initialize Git repository <!-- id: 2 -->
+- [/] Research & Planning <!-- id: 3 -->
+    - [x] Identify necessary APIs (Live: OWM, Historical: NASA POWER) <!-- id: 4 -->
+    - [x] Define **Model Interface Contract** for ML Engineer <!-- id: 5 -->
+    - [ ] Create **Vector DB Guide** (Knowledge Ingestion) <!-- id: 20 -->
+- [ ] Backend Development (FastAPI) <!-- id: 6 -->
+    - [ ] Set up Python environment & dependencies (FastAPI, ChromaDB, Gemini) <!-- id: 7 -->
+    - [ ] **Create Model Wrapper** (Mocked for now - defined in contract) <!-- id: 8 -->
+    - [ ] Setup **ChromaDB** & RAG Service <!-- id: 21 -->
+    - [ ] Implement **Gemini Agent with Grounding** <!-- id: 22 -->
+    - [ ] Create Mock Telemetry Generator <!-- id: 9 -->
+    - [ ] Implement Real-Time Analysis Endpoint <!-- id: 10 -->
+- [ ] Frontend Development (React + Vite) <!-- id: 12 -->
+    - [ ] Initialize React Project with TypeScript & Tailwind <!-- id: 13 -->
+    - [ ] Build Dashboard Layout (Graphs vs Report View) <!-- id: 14 -->
+    - [ ] Implement Conversational Interface (Chat UI) <!-- id: 15 -->
+    - [ ] Connect to Backend API <!-- id: 16 -->
+- [ ] Integration & Testing <!-- id: 17 -->
+    - [ ] Verify End-to-End Flow (Data -> Model -> Agent -> UI) <!-- id: 18 -->
+    - [ ] Containerization (Docker) <!-- id: 19 -->

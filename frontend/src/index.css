@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.4);
+  
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #0f0f12; /* Deep dark background */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 70%),
+    radial-gradient(circle at 80% 50%, #16213e 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.glass-panel {
+    background: rgba(20, 20, 25, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    color: white;
+}
+
+.glass-input:focus {
+    border-color: rgba(255, 255, 255, 0.3);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+html, body, #root {
+    height: 100%;
+}
