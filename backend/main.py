@@ -51,27 +51,43 @@ def analyze_telemetry(request: AnalysisRequest):
         avg_humidity = float(np.mean(humidities))
         duration_hours = route_data["duration_hours"]
         
-        # 3. Run Inference
+        # 3. Run Overall Inference (average-based)
         risk_analysis = model_service.predict_spoilage(
             temperature=avg_temp,
             humidity=avg_humidity,
             transit_hours=duration_hours,
             crop_type=request.crop_type
         )
+        
+        # 4. NEW: Per-Waypoint Risk Analysis (comprehensive)
+        waypoint_predictions = model_service.predict_per_waypoint(
+            telemetry_points=trip_telemetry,
+            crop_type=request.crop_type,
+            total_transit_hours=duration_hours
+        )
+        
+        # 5. NEW: Route Risk Analysis (find danger zones)
+        route_risk_analysis = model_service.analyze_route_risks(waypoint_predictions)
 
-        # 4. Agent Reasoning
-        # We pass the full context including the route summary AND CROP TYPE
+        # 6. Agent Reasoning with enhanced context
         context_data = {
             "metadata": {
-                "crop": request.crop_type  # CRITICAL: Agent needs this!
+                "crop": request.crop_type
             },
             "origin": request.origin,
             "destination": request.destination,
-            "crop_type": request.crop_type,  # Also at top level for clarity
+            "crop_type": request.crop_type,
             "distance_km": route_data["distance_km"],
             "duration_hours": duration_hours,
             "avg_temp": round(avg_temp, 2),
             "avg_humidity": round(avg_humidity, 2),
+            "temp_min": route_risk_analysis.get("temp_min", avg_temp),
+            "temp_max": route_risk_analysis.get("temp_max", avg_temp),
+            "temp_variance": route_risk_analysis.get("temp_variance", 0),
+            "danger_zones": route_risk_analysis.get("danger_zone_count", 0),
+            "danger_hours": route_risk_analysis.get("danger_hours", 0),
+            "highest_risk_waypoint": route_risk_analysis.get("highest_risk_waypoint", 1),
+            "highest_risk_temp": route_risk_analysis.get("highest_risk_temp", avg_temp),
             "waypoints_sampled": len(trip_telemetry),
             "route_summary": f"Transporting {request.crop_type} from {request.origin} to {request.destination} ({route_data['distance_km']} km)"
         }
@@ -85,9 +101,10 @@ def analyze_telemetry(request: AnalysisRequest):
         return {
             "route": route_data,
             "telemetry_points": trip_telemetry,
+            "waypoint_predictions": waypoint_predictions,  # NEW: Per-waypoint risk data
+            "route_risk_analysis": route_risk_analysis,    # NEW: Danger zone analysis
             "risk_analysis": risk_analysis,
             "agent_insight": agent_response,
-            # Add these for frontend compatibility
             "spoilage_risk": {
                 "probability": risk_analysis.get("spoilage_risk", 0),
                 "status": risk_analysis.get("status", "Unknown"),

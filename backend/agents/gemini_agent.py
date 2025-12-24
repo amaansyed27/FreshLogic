@@ -58,16 +58,31 @@ class FreshLogicAgent:
 
         # 3. Construct Prompt with RAG Context
         
-        # Handle Telemetry Text (Legacy vs New)
+        # Handle Telemetry Text with comprehensive route analysis
         if "route_summary" in telemetry_data:
             summary_text = telemetry_data["route_summary"]
             avg_temp = telemetry_data.get("avg_temp", "N/A")
+            temp_min = telemetry_data.get("temp_min", avg_temp)
+            temp_max = telemetry_data.get("temp_max", avg_temp)
+            temp_variance = telemetry_data.get("temp_variance", 0)
+            danger_zones = telemetry_data.get("danger_zones", 0)
+            danger_hours = telemetry_data.get("danger_hours", 0)
+            
             telemetry_text = f"""
             - CROP BEING TRANSPORTED: {crop_name}
             - Route: {summary_text}
-            - Avg Temperature: {avg_temp}°C
-            - Avg Humidity: {telemetry_data.get('avg_humidity')}%
-            - Duration: {telemetry_data.get('duration_hours')} hrs
+            - Distance: {telemetry_data.get('distance_km')} km
+            - Transit Duration: {telemetry_data.get('duration_hours')} hours
+            
+            TEMPERATURE ANALYSIS ALONG ROUTE:
+            - Average Temperature: {avg_temp}°C
+            - Temperature Range: {temp_min}°C to {temp_max}°C (Variance: {temp_variance}°C)
+            - Average Humidity: {telemetry_data.get('avg_humidity')}%
+            
+            RISK ZONES DETECTED:
+            - Number of high-risk checkpoints: {danger_zones}
+            - Time in danger zones: {danger_hours} hours
+            - Highest risk at waypoint {telemetry_data.get('highest_risk_waypoint', 'N/A')} ({telemetry_data.get('highest_risk_temp', 'N/A')}°C)
             """
         else:
             telemetry_text = f"""
@@ -84,18 +99,21 @@ class FreshLogicAgent:
         
         CURRENT TRIP REPORT:
         {telemetry_text}
-        - ML Predicted Spoilage Risk: {spoilage_risk.get('spoilage_risk', 0) * 100:.1f}% ({spoilage_risk.get('status')})
-        - Estimated Shelf Life Remaining: {spoilage_risk.get('days_remaining', 'N/A')} days
+        
+        ML MODEL PREDICTION:
+        - Overall Spoilage Risk: {spoilage_risk.get('spoilage_risk', 0) * 100:.1f}% ({spoilage_risk.get('status')})
+        - Estimated Shelf Life After Delivery: {spoilage_risk.get('days_remaining', 'N/A')} days
         
         USER QUERY: {user_query or "Provide a comprehensive analysis of this trip."}
         
         INSTRUCTIONS:
         1. You ARE analyzing {crop_name}. Do NOT ask "what crop" - you already know it's {crop_name}.
-        2. CHECK the Internal Knowledge Base. Does the Avg Temp ({telemetry_data.get('avg_temp', 'N/A')}°C) violate the optimal temp rules for {crop_name}?
-        3. IF yes, flag it immediately and cite the internal rule.
-        4. Explain WHY the ML predicted {spoilage_risk.get('status')} based on the conditions.
-        5. Provide 2-3 actionable recommendations specific to {crop_name}.
-        6. Keep your response concise but informative (200-300 words max).
+        2. ANALYZE the temperature variance along the route. High variance (>10°C) is especially dangerous.
+        3. CHECK the Internal Knowledge Base. Does ANY temperature along the route violate optimal rules for {crop_name}?
+        4. HIGHLIGHT danger zones - where on the route is the crop at highest risk?
+        5. Explain WHY the ML predicted {spoilage_risk.get('status')} based on the specific conditions.
+        6. Provide 2-3 actionable recommendations (e.g., reefer truck, night transport, alternate route).
+        7. Keep your response concise but informative (250-350 words max).
         """
 
         # 4. Call Gemini

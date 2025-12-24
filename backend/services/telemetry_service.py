@@ -84,13 +84,49 @@ class TelemetryService:
         except Exception as e:
             print(f"Weather Fetch Error: {e}")
         return None
+
+    def _calculate_distance(self, lat1, lng1, lat2, lng2):
+        """Calculate distance between two points using Haversine formula (km)."""
+        import math
+        R = 6371  # Earth's radius in km
+        
+        lat1_rad = math.radians(lat1)
+        lat2_rad = math.radians(lat2)
+        delta_lat = math.radians(lat2 - lat1)
+        delta_lng = math.radians(lng2 - lng1)
+        
+        a = math.sin(delta_lat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lng/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        
+        return R * c
         
     def generate_trip_telemetry(self, route_data):
-        """Generate telemetry for each waypoint."""
+        """Generate comprehensive telemetry for each waypoint with time estimates."""
         telemetry_points = []
         real_weather_count = 0
         
-        for point in route_data["waypoints"]:
+        waypoints = route_data["waypoints"]
+        total_distance = route_data["distance_km"]
+        total_hours = route_data["duration_hours"]
+        
+        # Calculate segment distances to estimate time at each point
+        segment_distances = []
+        for i in range(len(waypoints)):
+            if i == 0:
+                segment_distances.append(0)
+            else:
+                dist = self._calculate_distance(
+                    waypoints[i-1]["lat"], waypoints[i-1]["lng"],
+                    waypoints[i]["lat"], waypoints[i]["lng"]
+                )
+                segment_distances.append(dist)
+        
+        total_segment_dist = sum(segment_distances) if sum(segment_distances) > 0 else total_distance
+        
+        cumulative_time = 0
+        cumulative_distance = 0
+        
+        for i, point in enumerate(waypoints):
             weather = self._get_live_weather(point["lat"], point["lng"])
             
             # Fallback if weather API fails (graceful degradation)
@@ -98,22 +134,37 @@ class TelemetryService:
                 weather = {"temperature": 25, "humidity": 60, "condition": "Simulated (No API Key)"}
             else:
                 real_weather_count += 1
-                
-            # No simulated "Internal Temp" offset anymore. 
-            # We assume ambient temp = payload temp (non-reefer truck) or let the Agent handle reefer logic.
-            # No fake "vibration" sensors.
+            
+            # Calculate time spent reaching this segment
+            segment_dist = segment_distances[i]
+            segment_time_hrs = (segment_dist / total_segment_dist) * total_hours if total_segment_dist > 0 else 0
+            cumulative_time += segment_time_hrs
+            cumulative_distance += segment_dist
+            
+            # Estimate how long cargo is exposed at this temperature zone
+            # (Time between this point and next, or remaining time for last point)
+            if i < len(waypoints) - 1:
+                next_segment_dist = segment_distances[i + 1] if i + 1 < len(segment_distances) else 0
+                exposure_hours = (next_segment_dist / total_segment_dist) * total_hours if total_segment_dist > 0 else 0
+            else:
+                exposure_hours = 0  # Last point
             
             telemetry_points.append({
+                "waypoint_num": i + 1,
                 "lat": point["lat"],
                 "lng": point["lng"],
                 "ambient_temp": weather["temperature"],
-                "internal_temp": weather["temperature"], # Exact match to outside weather (Real)
+                "internal_temp": weather["temperature"],
                 "humidity": weather["humidity"],
-                "condition": weather["condition"]
+                "condition": weather["condition"],
+                "segment_km": round(segment_dist, 2),
+                "cumulative_km": round(cumulative_distance, 2),
+                "cumulative_hours": round(cumulative_time, 2),
+                "exposure_hours": round(exposure_hours, 2)  # Time exposed at this temp zone
             })
         
         # Log weather source for transparency
-        total = len(route_data["waypoints"])
+        total = len(waypoints)
         if real_weather_count == total:
             print(f"🌤️ Weather: {real_weather_count}/{total} points from OpenWeatherMap (REAL)")
         elif real_weather_count > 0:
