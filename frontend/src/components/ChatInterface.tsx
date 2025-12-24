@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, Bot, User, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 interface ChatInterfaceProps {
     context: {
@@ -79,7 +80,22 @@ export default function ChatInterface({ context, onAnalysisUpdate }: ChatInterfa
                                 ? "bg-white/10 text-white rounded-tr-sm"
                                 : "bg-black/20 text-gray-200 rounded-tl-sm"
                                 }`}>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                {msg.role === 'agent' ? (
+                                    <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none">
+                                        <ReactMarkdown
+                                            components={{
+                                                p: ({children}) => <p className="text-gray-200 mb-2">{children}</p>,
+                                                strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                                                ul: ({children}) => <ul className="list-disc list-inside space-y-1 my-2">{children}</ul>,
+                                                li: ({children}) => <li className="text-gray-200">{children}</li>,
+                                            }}
+                                        >
+                                            {msg.text}
+                                        </ReactMarkdown>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm leading-relaxed">{msg.text}</p>
+                                )}
                             </div>
 
                             {msg.role === 'user' && (

@@ -4,6 +4,7 @@ import ChatInterface from "./ChatInterface";
 import { FileText, MessageSquare, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
 
 interface IntelligencePanelProps {
     context: any;
@@ -42,7 +43,21 @@ export default function IntelligencePanel({ context, data, loading, onAnalysisUp
                     </button>
                 </div>
 
-                <button className="text-white/30 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors">
+                <button 
+                    onClick={() => {
+                        if (!data?.agent_insight) return;
+                        const content = `# FreshLogic Analysis Report\n\n**Route:** ${context?.origin || 'N/A'} → ${context?.destination || 'N/A'}\n**Crop:** ${context?.crop || 'N/A'}\n**Risk:** ${(data.risk_analysis?.spoilage_risk * 100).toFixed(1)}%\n**Status:** ${data.risk_analysis?.status}\n**Shelf Life:** ${data.risk_analysis?.days_remaining?.toFixed(1)} days\n\n---\n\n${data.agent_insight}`;
+                        const blob = new Blob([content], { type: 'text/markdown' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `freshlogic-report-${new Date().toISOString().split('T')[0]}.md`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }}
+                    className="text-white/30 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+                    title="Download Report"
+                >
                     <Download className="w-4 h-4" />
                 </button>
             </div>
@@ -98,11 +113,22 @@ export default function IntelligencePanel({ context, data, loading, onAnalysisUp
                                         </div>
                                     </div>
 
-                                    {/* Agent Insight */}
-                                    <div className="prose prose-invert prose-sm max-w-none">
-                                        <div className="text-gray-300 whitespace-pre-wrap font-light leading-7 text-[15px]">
+                                    {/* Agent Insight - Rendered as Markdown */}
+                                    <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-strong:text-white prose-p:text-gray-300 prose-li:text-gray-300">
+                                        <ReactMarkdown
+                                            components={{
+                                                p: ({children}) => <p className="text-gray-300 leading-7 text-[15px] mb-3">{children}</p>,
+                                                strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                                                ul: ({children}) => <ul className="list-disc list-inside space-y-1 text-gray-300">{children}</ul>,
+                                                ol: ({children}) => <ol className="list-decimal list-inside space-y-1 text-gray-300">{children}</ol>,
+                                                li: ({children}) => <li className="text-gray-300">{children}</li>,
+                                                h1: ({children}) => <h1 className="text-xl font-bold text-white mt-4 mb-2">{children}</h1>,
+                                                h2: ({children}) => <h2 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h2>,
+                                                h3: ({children}) => <h3 className="text-base font-semibold text-white mt-3 mb-1">{children}</h3>,
+                                            }}
+                                        >
                                             {data.agent_insight}
-                                        </div>
+                                        </ReactMarkdown>
                                     </div>
 
                                     {/* Data Sources Footer */}

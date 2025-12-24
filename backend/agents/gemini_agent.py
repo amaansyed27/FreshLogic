@@ -3,6 +3,7 @@ from google.genai import types
 import os
 import json
 import sys
+import time
 
 # Hack to import from sibling directory if not in path (FastAPI usually handles this, but good for standalone testing)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -12,7 +13,18 @@ class FreshLogicAgent:
     def __init__(self):
         # Initialize Gemini Client
         self.client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        self.model = "gemini-2.5-flash" 
+        
+        # Model fallback hierarchy (best to most lenient rate limits)
+        self.model_hierarchy = [
+            "gemini-3-flash",        # Primary - newest, best quality
+            "gemini-2.5-flash",      # Fallback 1 - still great
+            "gemini-2.5-flash-lite", # Fallback 2 - faster, cheaper
+            "gemma-3-27b-it",        # Fallback 3 - open model, generous limits
+        ]
+        self.current_model_index = 0
+        self.model = self.model_hierarchy[0]
+        self.max_retries = 2  # Retries per model before switching
+        self.retry_delay = 1.0  # seconds between retries
 
         # Define Tools
         self.tools = [
@@ -113,21 +125,51 @@ class FreshLogicAgent:
         4. HIGHLIGHT danger zones - where on the route is the crop at highest risk?
         5. Explain WHY the ML predicted {spoilage_risk.get('status')} based on the specific conditions.
         6. Provide 2-3 actionable recommendations (e.g., reefer truck, night transport, alternate route).
-        7. Keep your response concise but informative (250-350 words max).
+        7. Keep response CONCISE - max 150 words. Use bullet points. No fluff.
+        8. Format with markdown: Use **bold** for key terms, bullet lists for recommendations.
         """
 
-        # 4. Call Gemini
-        try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=context,
-                config=types.GenerateContentConfig(
-                    # tools=self.tools, # Disabling Search to fix INVALID_ARGUMENT error
-                    temperature=0.3 
-                )
-            )
-            return response.text
-        except Exception as e:
-            return f"Agent Error: {str(e)}"
+        # 4. Call Gemini with automatic model fallback
+        while self.current_model_index < len(self.model_hierarchy):
+            current_model = self.model_hierarchy[self.current_model_index]
+            
+            for attempt in range(self.max_retries):
+                try:
+                    print(f"🤖 Trying model: {current_model} (attempt {attempt + 1}/{self.max_retries})")
+                    response = self.client.models.generate_content(
+                        model=current_model,
+                        contents=context,
+                        config=types.GenerateContentConfig(
+                            temperature=0.3 
+                        )
+                    )
+                    # Success! Update current model for future calls
+                    self.model = current_model
+                    return response.text
+                except Exception as e:
+                    error_str = str(e)
+                    if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                        if attempt < self.max_retries - 1:
+                            wait_time = self.retry_delay * (2 ** attempt)
+                            print(f"⚠️ Rate limited on {current_model}. Retrying in {wait_time}s...")
+                            time.sleep(wait_time)
+                            continue
+                        else:
+                            # Move to next model
+                            print(f"❌ {current_model} exhausted. Switching to next model...")
+                            break
+                    else:
+                        # Non-rate-limit error, try next model
+                        print(f"⚠️ Error with {current_model}: {error_str[:100]}")
+                        break
+            
+            # Move to next model in hierarchy
+            self.current_model_index += 1
+            if self.current_model_index < len(self.model_hierarchy):
+                print(f"🔄 Falling back to: {self.model_hierarchy[self.current_model_index]}")
+        
+        # Reset for next request (allow retry from top next time)
+        self.current_model_index = 0
+        return "⚠️ All models exhausted. Please wait a minute and try again. (Rate limits will reset shortly)"
 
 agent_service = FreshLogicAgent()

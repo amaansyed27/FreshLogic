@@ -314,7 +314,7 @@ npm install
 
 ## 📄 License
 
-MIT License - Built for Hackathon 2024
+MIT License - Built for ML Mumbai GenAI Hackathon 2025
 
 ---
 
