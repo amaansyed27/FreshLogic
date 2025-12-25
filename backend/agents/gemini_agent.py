@@ -15,11 +15,11 @@ class FreshLogicAgent:
         self.client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         
         # Model fallback hierarchy (best to most lenient rate limits)
+        # Note: gemini-3-flash is preview only, use 2.5 for production
         self.model_hierarchy = [
-            "gemini-3-flash",        # Primary - newest, best quality
-            "gemini-2.5-flash",      # Fallback 1 - still great
-            "gemini-2.5-flash-lite", # Fallback 2 - faster, cheaper
-            "gemma-3-27b-it",        # Fallback 3 - open model, generous limits
+            "gemini-2.5-flash",      # Primary - fast, reliable, production-ready
+            "gemini-2.0-flash",      # Fallback 1 - older but stable
+            "gemini-1.5-flash",      # Fallback 2 - legacy, generous limits
         ]
         self.current_model_index = 0
         self.model = self.model_hierarchy[0]
@@ -171,5 +171,54 @@ class FreshLogicAgent:
         # Reset for next request (allow retry from top next time)
         self.current_model_index = 0
         return "⚠️ All models exhausted. Please wait a minute and try again. (Rate limits will reset shortly)"
+
+    def quick_chat(self, message: str, context: dict) -> str:
+        """
+        Fast chat response using pre-computed context.
+        NO external API calls (routing, weather) - just Gemini.
+        This is 5-10x faster than full analyze_situation().
+        """
+        crop_name = context.get("crop_type", "Unknown Crop")
+        
+        # Build lightweight prompt with cached analysis data
+        prompt = f"""You are FreshLogic AI, an expert agronomist assistant.
+
+ANALYSIS CONTEXT (already computed):
+- Route: {context.get('origin', 'N/A')} → {context.get('destination', 'N/A')}
+- Crop: {crop_name}
+- Distance: {context.get('distance_km', 'N/A')} km
+- Transit Time: {context.get('duration_hours', 'N/A')} hours
+- Average Temperature: {context.get('avg_temp', 'N/A')}°C
+- Average Humidity: {context.get('avg_humidity', 'N/A')}%
+- Spoilage Risk: {context.get('risk_analysis', {}).get('spoilage_risk', 0) * 100:.1f}%
+- Status: {context.get('risk_analysis', {}).get('status', 'Unknown')}
+- Days Remaining: {context.get('risk_analysis', {}).get('days_remaining', 'N/A')}
+- Danger Zones: {context.get('danger_zones', 0)} waypoints above safe temperature
+
+USER QUESTION: {message}
+
+Respond helpfully based on the analysis above. Use bullet points for recommendations.
+Be thorough but concise (150-250 words). Use markdown formatting."""
+
+        # Use the fastest available model with retry logic
+        for i, model in enumerate(self.model_hierarchy):
+            try:
+                print(f"💬 Chat using model: {model}")
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.4,
+                        max_output_tokens=800  # Allow complete responses
+                    )
+                )
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                print(f"⚠️ Chat error with {model}: {error_str[:80]}")
+                if i < len(self.model_hierarchy) - 1:
+                    print(f"🔄 Trying next model: {self.model_hierarchy[i+1]}")
+                    continue
+                return f"I apologize, I'm having trouble responding right now. Please try again in a moment."
 
 agent_service = FreshLogicAgent()

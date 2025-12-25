@@ -1,20 +1,36 @@
 
 import { useState } from "react";
 import ChatInterface from "./ChatInterface";
-import { FileText, MessageSquare, Download } from "lucide-react";
+import { FileText, MessageSquare, Download, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
+import { exportReportAsPDF } from "../utils/pdfExport";
+import type { AppSettings } from "./SettingsModal";
 
 interface IntelligencePanelProps {
     context: any;
     data: any;
     loading: boolean;
     onAnalysisUpdate: (data: any) => void;
+    settings?: AppSettings;
 }
 
-export default function IntelligencePanel({ context, data, loading, onAnalysisUpdate }: IntelligencePanelProps) {
+export default function IntelligencePanel({ context, data, loading, onAnalysisUpdate, settings }: IntelligencePanelProps) {
     const [activeTab, setActiveTab] = useState<'report' | 'chat'>('report');
+    const [downloadingPDF, setDownloadingPDF] = useState(false);
+
+    const handlePDFExport = async () => {
+        if (!data?.agent_insight) return;
+        setDownloadingPDF(true);
+        try {
+            await exportReportAsPDF(data, context);
+        } catch (error) {
+            console.error('PDF export failed:', error);
+        } finally {
+            setDownloadingPDF(false);
+        }
+    };
 
     return (
         <div className="glass-panel rounded-3xl h-full flex flex-col overflow-hidden relative">
@@ -44,21 +60,16 @@ export default function IntelligencePanel({ context, data, loading, onAnalysisUp
                 </div>
 
                 <button 
-                    onClick={() => {
-                        if (!data?.agent_insight) return;
-                        const content = `# FreshLogic Analysis Report\n\n**Route:** ${context?.origin || 'N/A'} → ${context?.destination || 'N/A'}\n**Crop:** ${context?.crop || 'N/A'}\n**Risk:** ${(data.risk_analysis?.spoilage_risk * 100).toFixed(1)}%\n**Status:** ${data.risk_analysis?.status}\n**Shelf Life:** ${data.risk_analysis?.days_remaining?.toFixed(1)} days\n\n---\n\n${data.agent_insight}`;
-                        const blob = new Blob([content], { type: 'text/markdown' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `freshlogic-report-${new Date().toISOString().split('T')[0]}.md`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }}
-                    className="text-white/30 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
-                    title="Download Report"
+                    onClick={handlePDFExport}
+                    disabled={downloadingPDF || !data?.agent_insight}
+                    className="text-white/30 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    title="Download PDF Report"
                 >
-                    <Download className="w-4 h-4" />
+                    {downloadingPDF ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                        <Download className="w-4 h-4" />
+                    )}
                 </button>
             </div>
 
@@ -163,7 +174,12 @@ export default function IntelligencePanel({ context, data, loading, onAnalysisUp
                             exit={{ opacity: 0, x: -20 }}
                             className="h-full"
                         >
-                            <ChatInterface context={context} onAnalysisUpdate={onAnalysisUpdate} />
+                            <ChatInterface 
+                                context={context} 
+                                sessionId={data?.session_id}
+                                onAnalysisUpdate={onAnalysisUpdate}
+                                settings={settings}
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>

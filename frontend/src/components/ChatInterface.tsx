@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Send, Bot, User, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import type { AppSettings } from "./SettingsModal";
 
 interface ChatInterfaceProps {
     context: {
@@ -9,16 +10,22 @@ interface ChatInterfaceProps {
         destination: string;
         crop: string;
     };
+    sessionId?: string;  // Session ID for fast chat
     onAnalysisUpdate?: (data: any) => void;
+    settings?: AppSettings;
 }
 
-export default function ChatInterface({ context, onAnalysisUpdate }: ChatInterfaceProps) {
+export default function ChatInterface({ context, sessionId, onAnalysisUpdate, settings }: ChatInterfaceProps) {
     const [messages, setMessages] = useState([
-        { role: "agent", text: "Hello! I'm FreshLogic AI. Monitoring your active routes. Ask me about weather, spoilage risk, or crop storage tips!" }
+        { role: "agent", text: "Hello! I'm FreshLogic AI. Ask me anything about your route, crop storage, or spoilage prevention! ⚡ Fast responses enabled." }
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Get language from settings
+    const language = settings?.language || 'en';
+    const autoTranslate = settings?.autoTranslate ?? true;
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -35,27 +42,62 @@ export default function ChatInterface({ context, onAnalysisUpdate }: ChatInterfa
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:8000/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    origin: context.origin,
-                    destination: context.destination,
-                    crop_type: context.crop,
-                    user_query: input
-                })
-            });
-            const data = await res.json();
-
-            setMessages(prev => [...prev, { role: "agent", text: data.agent_insight }]);
-            if (onAnalysisUpdate) {
-                onAnalysisUpdate(data);
+            // Use FAST /chat endpoint if we have a session ID
+            if (sessionId) {
+                const res = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: input,
+                        language: autoTranslate ? language : 'en',  // Pass language for translation
+                        context: {
+                            origin: context.origin,
+                            destination: context.destination,
+                            crop_type: context.crop
+                        }
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    // Session expired, fall back to full analysis
+                    setMessages(prev => [...prev, { role: "agent", text: "Session expired. Running fresh analysis..." }]);
+                    await fallbackToFullAnalysis(input);
+                } else {
+                    // If translation was applied, show indicator
+                    const responseText = data.translated ? 
+                        `${data.response}\n\n_🌐 Translated to ${settings?.languageName || 'your language'}_` : 
+                        data.response;
+                    setMessages(prev => [...prev, { role: "agent", text: responseText }]);
+                }
+            } else {
+                // No session - use full analysis
+                await fallbackToFullAnalysis(input);
             }
         } catch (error) {
             console.error(error);
             setMessages(prev => [...prev, { role: "agent", text: "Connection Error: Could not reach the AI Agent." }]);
         }
         setLoading(false);
+    };
+
+    const fallbackToFullAnalysis = async (query: string) => {
+        const res = await fetch('http://localhost:8000/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                origin: context.origin,
+                destination: context.destination,
+                crop_type: context.crop,
+                user_query: query
+            })
+        });
+        const data = await res.json();
+        setMessages(prev => [...prev, { role: "agent", text: data.agent_insight }]);
+        if (onAnalysisUpdate) {
+            onAnalysisUpdate(data);
+        }
     };
 
     return (

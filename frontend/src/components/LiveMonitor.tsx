@@ -1,12 +1,17 @@
 
+import { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart } from 'recharts';
 import { motion } from 'framer-motion';
-import { Thermometer, Clock, Navigation, Droplets, Calendar, Leaf, MapPin, AlertTriangle } from 'lucide-react';
+import { Thermometer, Clock, Navigation, Droplets, Calendar, Leaf, MapPin, AlertTriangle, BarChart3, Map } from 'lucide-react';
+import RouteMapView from './RouteMapView';
 
 interface LiveMonitorProps {
     data: any;
     loading: boolean;
 }
+
+// View toggle type
+type ViewMode = 'graph' | 'map';
 
 // Status badge component
 function StatusBadge({ status }: { status: string }) {
@@ -24,6 +29,8 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
+    const [viewMode, setViewMode] = useState<ViewMode>('graph');
+    
     if (loading) {
         return (
             <div className="h-full flex flex-col items-center justify-center text-white/30 space-y-4">
@@ -176,7 +183,7 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                 </motion.div>
             )}
 
-            {/* Live Chart - Temperature & Risk Progression */}
+            {/* View Mode Toggle + Chart/Map */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
                 className="glass p-5 rounded-2xl flex-1 min-h-[280px] flex flex-col"
@@ -184,12 +191,55 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                 <div className="flex justify-between items-center mb-4">
                     <div>
                         <h3 className="text-white/90 font-medium flex items-center gap-2">
-                            <Thermometer className="w-4 h-4 text-orange-400" />
-                            Route Risk Progression
+                            {viewMode === 'graph' ? (
+                                <Thermometer className="w-4 h-4 text-orange-400" />
+                            ) : (
+                                <Map className="w-4 h-4 text-blue-400" />
+                            )}
+                            {viewMode === 'graph' ? 'Route Risk Progression' : 'Interactive Route Map'}
                         </h3>
-                        <p className="text-xs text-white/40 mt-1">Per-checkpoint analysis with cumulative risk assessment</p>
+                        <p className="text-xs text-white/40 mt-1">
+                            {viewMode === 'graph' 
+                                ? 'Per-checkpoint analysis with cumulative risk assessment'
+                                : 'Hover over waypoints to see temperature, humidity & spoilage risk'
+                            }
+                        </p>
                     </div>
-                    <div className="flex gap-4 text-xs flex-wrap">
+                    
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex bg-black/30 rounded-lg p-1">
+                            <button
+                                onClick={() => setViewMode('graph')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                                    viewMode === 'graph' 
+                                        ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' 
+                                        : 'text-white/40 hover:text-white/60'
+                                }`}
+                            >
+                                <BarChart3 className="w-3 h-3" />
+                                Graph
+                            </button>
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                                    viewMode === 'map' 
+                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                                        : 'text-white/40 hover:text-white/60'
+                                }`}
+                            >
+                                <Map className="w-3 h-3" />
+                                Map
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Graph/Map Content */}
+                {viewMode === 'graph' ? (
+                    <>
+                    {/* Chart Legend */}
+                    <div className="flex gap-4 text-xs flex-wrap mb-3">
                         <div className="flex items-center gap-1">
                             <div className="w-3 h-0.5 bg-orange-400 rounded"></div>
                             <span className="text-white/50">Temperature</span>
@@ -203,7 +253,6 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                             <span className="text-white/50">Humidity</span>
                         </div>
                     </div>
-                </div>
 
                 <div className="flex-1 w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
@@ -308,6 +357,31 @@ export default function LiveMonitor({ data, loading }: LiveMonitorProps) {
                         </ComposedChart>
                     </ResponsiveContainer>
                 </div>
+                    </>
+                ) : (
+                    /* Map View */
+                    <div className="flex-1 w-full min-h-[300px]">
+                        <RouteMapView
+                            origin={{
+                                lat: data?.telemetry_points?.[0]?.lat || 19.0760,
+                                lon: data?.telemetry_points?.[0]?.lon || 72.8777,
+                                name: data?.route?.origin_name || 'Origin'
+                            }}
+                            destination={{
+                                lat: data?.telemetry_points?.[data?.telemetry_points?.length - 1]?.lat || 18.5204,
+                                lon: data?.telemetry_points?.[data?.telemetry_points?.length - 1]?.lon || 73.8567,
+                                name: data?.route?.destination_name || 'Destination'
+                            }}
+                            waypoints={data?.telemetry_points?.map((p: any, i: number) => ({
+                                ...p,
+                                spoilage_risk: data?.waypoint_predictions?.[i]?.instant_risk || 0,
+                                hours_elapsed: data?.waypoint_predictions?.[i]?.cumulative_hours || (i * (data?.route?.duration_hours || 1) / (data?.telemetry_points?.length || 1))
+                            })) || []}
+                            cropType={data?.metadata?.crop || 'Crop'}
+                            overallRisk={data?.risk_analysis?.spoilage_risk || 0}
+                        />
+                    </div>
+                )}
             </motion.div>
 
             {/* Checkpoint Details Table - shows time at each location */}

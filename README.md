@@ -62,13 +62,21 @@ Before starting, ensure you have:
 Create a `.env` file in the `backend/` folder:
 
 ```env
+# Required
 GEMINI_API_KEY=your_gemini_api_key_here
-OPENWEATHER_API_KEY=your_openweather_api_key_here
+
+# Optional but recommended for real weather/routing data
+GOOGLE_API_KEY=your_google_cloud_api_key_here
+
+# Optional fallback (deprecated - Google Weather API is now primary)
+# OPENWEATHER_API_KEY=your_openweather_api_key_here
 ```
 
 Get your keys from:
 - **Gemini**: https://aistudio.google.com/apikey
-- **OpenWeather**: https://openweathermap.org/api
+- **Google Cloud** (Maps/Routes/Weather): https://console.cloud.google.com/apis/credentials
+
+**Note:** Without `GOOGLE_API_KEY`, the app uses free fallbacks (OSRM for routing, simulated weather data). With the key, you get real Google Weather API, Routes API, Air Quality, and more.
 
 ---
 

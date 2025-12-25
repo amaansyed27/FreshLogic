@@ -5,8 +5,10 @@ import IntelligencePanel from './IntelligencePanel';
 import HistorySidebar from './HistorySidebar';
 import CommandBar from './CommandBar';
 import AnalysisLoader from './AnalysisLoader';
+import SettingsModal, { type AppSettings } from './SettingsModal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useHistory } from '../context/HistoryContext';
+import { Settings, Globe } from 'lucide-react';
 
 interface WorkspaceLayoutProps {
     inputs: any;
@@ -18,7 +20,20 @@ interface WorkspaceLayoutProps {
 
 export default function WorkspaceLayout({ inputs, setInputs, startParams, onReset, onLoadFromHistory }: WorkspaceLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const { addToHistory } = useHistory();
+
+    // App Settings with localStorage persistence
+    const [settings, setSettings] = useState<AppSettings>(() => {
+        const saved = localStorage.getItem('freshlogic_settings');
+        return saved ? JSON.parse(saved) : {
+            language: 'en',
+            languageName: 'English',
+            darkMode: true,
+            soundEnabled: false,
+            autoTranslate: true
+        };
+    });
 
     // Lifted state for analysis data
     const [loading, setLoading] = useState(false);
@@ -47,7 +62,8 @@ export default function WorkspaceLayout({ inputs, setInputs, startParams, onRese
                 body: JSON.stringify({
                     origin: params.origin || inputs.origin,
                     destination: params.destination || inputs.destination,
-                    crop_type: params.crop || inputs.crop
+                    crop_type: params.crop || inputs.crop,
+                    language: settings.language  // Pass language for translation
                 })
             });
             const result = await res.json();
@@ -106,6 +122,23 @@ export default function WorkspaceLayout({ inputs, setInputs, startParams, onRese
                             animate={{ opacity: 1 }}
                             className="flex-1 flex flex-col h-full"
                         >
+                            {/* Settings Button - Top Right */}
+                            <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+                                {settings.language !== 'en' && (
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-full text-xs text-green-400">
+                                        <Globe className="w-3 h-3" />
+                                        {settings.languageName}
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => setSettingsOpen(true)}
+                                    className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all hover:scale-105"
+                                    title="Settings"
+                                >
+                                    <Settings className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+                                </button>
+                            </div>
+
                             {/* 2. Top Command Bar */}
                             <div className="p-4 pb-0 z-20">
                                 <CommandBar
@@ -130,6 +163,7 @@ export default function WorkspaceLayout({ inputs, setInputs, startParams, onRese
                                         data={data}
                                         loading={loading && initialAnalysisComplete}
                                         onAnalysisUpdate={(newData) => setData(newData)}
+                                        settings={settings}
                                     />
                                 </div>
                             </div>
@@ -137,6 +171,14 @@ export default function WorkspaceLayout({ inputs, setInputs, startParams, onRese
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* Settings Modal */}
+            <SettingsModal
+                isOpen={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
+                settings={settings}
+                onSettingsChange={setSettings}
+            />
 
             {/* Background Ambience (Optional to reinforce glass effect) */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">

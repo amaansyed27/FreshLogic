@@ -1,13 +1,24 @@
+# FreshLogic Backend Dependencies
+
+# Core Framework
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
-google-genai
-
-
-httpx
-requests
 pydantic
+
+# Google AI & APIs
+google-genai
+google-cloud-translate
+google-cloud-firestore
+
+# HTTP & Async
+httpx
+aiohttp
+
+# ML & Data
 scikit-learn
 pandas
 numpy
-google-search-results
+
+# Utilities
+requests

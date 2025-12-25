@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
   --color-glass-border: rgba(255, 255, 255, 0.2);
