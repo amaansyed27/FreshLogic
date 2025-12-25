@@ -159,200 +159,125 @@ gcloud run deploy freshlogic-api \
 
 ## Step 6: Deploy Frontend (React/Vite)
 
-### Option A: Firebase Hosting (Recommended - Free)
+### Option A: Firebase Hosting via Console UI
 
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
+**1. Go to Firebase Console:**
+- Open https://console.firebase.google.com
+- Click **"Add project"** → Select your GCP project `freshlogic-app`
 
-# Login to Firebase
-firebase login
+**2. Enable Hosting:**
+- In left sidebar, click **Hosting**
+- Click **"Get started"**
+- Follow the setup wizard (can skip CLI steps for now)
 
-# Navigate to frontend
-cd frontend
-
-# Initialize Firebase Hosting
-firebase init hosting
-```
-
-**When prompted, select:**
-- ✅ Use an existing project → `freshlogic-app`
-- ✅ Public directory → `dist`
-- ✅ Configure as single-page app → `Yes`
-- ✅ Set up automatic builds with GitHub → `No` (optional)
-- ❌ Overwrite index.html → `No`
-
-```bash
-# Create production environment file
-echo "VITE_API_URL=https://freshlogic-api-xxx-uc.a.run.app" > .env.production
-
-# Install dependencies and build
-npm install
-npm run build
-
-# Deploy to Firebase Hosting
-firebase deploy --only hosting
-```
-
-**Your app will be live at:** `https://freshlogic-app.web.app`
+**3. Deploy via UI:**
+- Build your frontend locally:
+  ```bash
+  cd frontend
+  echo "VITE_API_URL=https://your-backend-url.run.app" > .env.production
+  npm install && npm run build
+  ```
+- In Firebase Console → Hosting → Click **"Upload files"** (drag & drop the `dist` folder contents)
+- Or use the CLI: `firebase deploy --only hosting`
 
 ---
 
-### Option B: Cloud Run (Containerized)
+### Option B: Cloud Run via Console UI (Recommended)
 
-If you prefer Cloud Run for both frontend and backend:
+**Step 1: Open Cloud Run**
+- Go to https://console.cloud.google.com/run
+- Click **"CREATE SERVICE"**
 
-**1. Create `frontend/Dockerfile`:**
+**Step 2: Choose Source**
+- Select **"Continuously deploy from a repository"** OR
+- Select **"Upload container"** if you have a Docker image
 
-```dockerfile
-# Build stage
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-RUN npm run build
+**For Source Repository:**
+1. Click **"Set up with Cloud Build"**
+2. Connect your GitHub/GitLab repo
+3. Select branch: `main`
+4. Build type: **Dockerfile** → Path: `/frontend/Dockerfile`
 
-# Production stage
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
-```
+**For Direct Upload (Easiest):**
+1. Select **"Deploy one revision from an existing container image"**
+2. First, build and push your image:
+   ```bash
+   cd frontend
+   gcloud builds submit --tag gcr.io/freshlogic-app/freshlogic-ui
+   ```
+3. Enter image URL: `gcr.io/freshlogic-app/freshlogic-ui`
 
-**2. Create `frontend/nginx.conf`:**
+**Step 3: Configure Service**
+| Setting | Value |
+|---------|-------|
+| Service name | `freshlogic-ui` |
+| Region | `us-central1` |
+| CPU allocation | "CPU only during request processing" |
+| Autoscaling min | `0` |
+| Autoscaling max | `3` |
+| Authentication | **"Allow unauthenticated invocations"** ✅ |
 
-```nginx
-server {
-    listen 8080;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html;
+**Step 4: Container Settings**
+- Click **"Container, Networking, Security"** to expand
+- Container port: `8080`
+- Memory: `256 MiB`
+- CPU: `1`
 
-    # Gzip compression
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+**Step 5: Environment Variables (Build Args)**
+- Under **"Variables & Secrets"** tab
+- Add: `VITE_API_URL` = `https://freshlogic-api-xxx.run.app`
 
-    # SPA routing - send all requests to index.html
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-}
-```
-
-**3. Create `frontend/.dockerignore`:**
-
-```
-node_modules
-dist
-.git
-*.md
-.env.local
-.env.development
-```
-
-**4. Deploy to Cloud Run:**
-
-```bash
-cd frontend
-
-# Get your backend URL first
-BACKEND_URL=$(gcloud run services describe freshlogic-api --region us-central1 --format='value(status.url)')
-
-# Build and deploy with API URL as build arg
-gcloud run deploy freshlogic-ui \
-    --source . \
-    --region us-central1 \
-    --allow-unauthenticated \
-    --build-arg="VITE_API_URL=$BACKEND_URL" \
-    --memory 256Mi \
-    --cpu 1 \
-    --min-instances 0 \
-    --max-instances 3
-
-# Your frontend URL will be displayed
-```
+**Step 6: Deploy**
+- Click **"CREATE"**
+- Wait 2-3 minutes for build & deployment
+- Copy your URL: `https://freshlogic-ui-xxx-uc.a.run.app`
 
 ---
 
-### Option C: Cloud Storage + Load Balancer (Static Hosting)
+### Option C: Cloud Storage Static Hosting via Console UI
 
-For maximum scalability with CDN:
+**Step 1: Create Bucket**
+- Go to https://console.cloud.google.com/storage
+- Click **"CREATE BUCKET"**
+- Name: `freshlogic-ui` (must be globally unique)
+- Region: `us-central1`
+- Click **"CREATE"**
 
-```bash
-cd frontend
+**Step 2: Upload Files**
+- Build locally: `npm run build`
+- Click **"UPLOAD FILES"** or **"UPLOAD FOLDER"**
+- Upload entire contents of `dist/` folder
 
-# Create Cloud Storage bucket
-gsutil mb -l us-central1 gs://freshlogic-ui
+**Step 3: Make Public**
+- Go to **Permissions** tab
+- Click **"GRANT ACCESS"**
+- New principal: `allUsers`
+- Role: **"Storage Object Viewer"**
+- Click **"SAVE"**
 
-# Make bucket public
-gsutil iam ch allUsers:objectViewer gs://freshlogic-ui
+**Step 4: Enable Website**
+- Click bucket name → **"Edit website configuration"**
+- Index page: `index.html`
+- Error page: `index.html` (for SPA routing)
+- Click **"SAVE"**
 
-# Configure as website
-gsutil web set -m index.html -e index.html gs://freshlogic-ui
-
-# Build with production API URL
-echo "VITE_API_URL=https://freshlogic-api-xxx-uc.a.run.app" > .env.production
-npm run build
-
-# Upload built files
-gsutil -m cp -r dist/* gs://freshlogic-ui/
-
-# Access at: http://storage.googleapis.com/freshlogic-ui/index.html
-```
-
-**For custom domain + HTTPS, add Cloud Load Balancer:**
-
-```bash
-# Reserve static IP
-gcloud compute addresses create freshlogic-ip --global
-
-# Create backend bucket
-gcloud compute backend-buckets create freshlogic-backend \
-    --gcs-bucket-name=freshlogic-ui \
-    --enable-cdn
-
-# Create URL map
-gcloud compute url-maps create freshlogic-lb \
-    --default-backend-bucket=freshlogic-backend
-
-# Create HTTPS proxy (requires SSL cert)
-gcloud compute target-https-proxies create freshlogic-https \
-    --url-map=freshlogic-lb \
-    --ssl-certificates=your-cert
-
-# Create forwarding rule
-gcloud compute forwarding-rules create freshlogic-https-rule \
-    --global \
-    --target-https-proxy=freshlogic-https \
-    --ports=443 \
-    --address=freshlogic-ip
-```
+**Step 5: Access Your Site**
+- URL: `https://storage.googleapis.com/freshlogic-ui/index.html`
 
 ---
 
-### Comparison Table
+### Console UI Comparison
 
-| Method | Cost | Setup Time | CDN | Custom Domain | Best For |
-|--------|------|------------|-----|---------------|----------|
-| **Firebase Hosting** | Free | 5 min | ✅ Built-in | ✅ Easy | Most projects |
-| **Cloud Run** | Free tier | 10 min | ❌ Manual | ✅ Easy | Full control |
-| **Cloud Storage + LB** | ~$18/mo | 30 min | ✅ Full CDN | ✅ Full | Enterprise |
+| Method | Console Location | Setup Time | Difficulty |
+|--------|------------------|------------|------------|
+| Firebase Hosting | console.firebase.google.com | 5 min | ⭐ Easy |
+| Cloud Run | console.cloud.google.com/run | 10 min | ⭐⭐ Medium |
+| Cloud Storage | console.cloud.google.com/storage | 15 min | ⭐ Easy |
 
-**Recommendation:** Use **Firebase Hosting** for simplicity and free CDN.
+**Quick Links:**
+- 🔥 Firebase Console: https://console.firebase.google.com
+- ☁️ Cloud Run: https://console.cloud.google.com/run
+- 🪣 Cloud Storage: https://console.cloud.google.com/storage
 
 ---
 
